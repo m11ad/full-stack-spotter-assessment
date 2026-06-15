@@ -60,26 +60,24 @@ export default function ELDSheet({days}){
     const minutes = days.reduce((sum, day) => {
       return sum + day.events.filter((e) => statusRow[e.status] === row.key).reduce((s, e) => s + e.minutes, 0)
     }, 0)
-    return { key: row.key, label: row.label, hours: (minutes / 60).toFixed(2) }
+    return { key: row.key, label: row.label, value: (minutes / 60).toFixed(2), unit: 'h' }
   })
 
   return (
     <div className="eld-sheet" ref={sheetRef}>
-      <h3>ELD Timeline</h3>
-      <div className="timeline-summary">
-        <h4>Timeline Summary</h4>
-        <div className="timeline-summary-grid">
-          <div>
-            <div className="timeline-summary-label">Days</div>
-            <div className="timeline-summary-value">{days.length}</div>
-          </div>
-          {summaryTotals.map((line) => (
-            <div key={line.key}>
-              <div className="timeline-summary-label">{line.label}</div>
-              <div className="timeline-summary-value">{line.hours}</div>
-            </div>
-          ))}
+      <div className="timeline-summary-grid">
+        <div className="summary-stat-card">
+          <div className="summary-stat-label">Days</div>
+          <div className="summary-stat-value">{days.length}</div>
+          <div className="summary-stat-unit">days</div>
         </div>
+        {summaryTotals.map((line) => (
+          <div className="summary-stat-card" key={line.key}>
+            <div className="summary-stat-label">{line.label}</div>
+            <div className="summary-stat-value">{line.value}</div>
+            <div className="summary-stat-unit">{line.unit}</div>
+          </div>
+        ))}
       </div>
       <div className="eld-day-list">
         {days.map((day)=>(
