@@ -1,0 +1,17 @@
+.app-shell { padding: 24px; font-family: Inter, Arial, sans-serif; background: #f8fafc; min-height: 100vh; }
+header { max-width: 880px; margin-bottom: 24px; }
+header h1 { margin: 0 0 8px; font-size: 2rem; color: #0f172a; }
+header p { margin: 0; color: #475569; }
+.trip-form { display: grid; gap: 16px; max-width: 880px; background: white; padding: 20px; border-radius: 18px; box-shadow: 0 20px 60px rgba(15,23,42,.08); }
+.field-row { display: grid; gap: 12px; grid-template-columns: 1.5fr 1fr 1fr; align-items: center; }
+.field-row label { font-weight: 600; color: #0f172a; }
+.field-row input { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 12px; }
+button { width: 180px; padding: 12px 18px; border: none; border-radius: 999px; background: #0f766e; color: white; cursor: pointer; font-weight: 700; }
+button:disabled { opacity: 0.7; cursor: not-allowed; }
+.error-box { margin-top: 12px; padding: 12px; background: #fee2e2; color: #991b1b; border-radius: 12px; }
+.content-grid { display: grid; gap: 24px; grid-template-columns: 1.5fr 1fr; margin-top: 24px; }
+.map-panel, .summary-panel { background: white; border-radius: 24px; box-shadow: 0 20px 60px rgba(15,23,42,.08); padding: 18px; }
+.map-container { width: 100%; height: 520px; border-radius: 20px; overflow: hidden; }
+.summary-card { display: grid; gap: 12px; }
+.summary-card h2 { margin: 0; }
+.warning-box { margin-top: 12px; padding: 12px; border-radius: 12px; background: #fef3c7; color: #92400e; }
