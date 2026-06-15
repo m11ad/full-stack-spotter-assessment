@@ -62,7 +62,3 @@ button:disabled { opacity: 0.7; cursor: not-allowed; }
 
 /* totals column styles */
 
-/* stack summary below map on small/normal screens, enable two-column on very wide */
-@media (min-width: 1200px) {
-  .content-grid { grid-template-columns: 1.5fr 1fr; }
-}

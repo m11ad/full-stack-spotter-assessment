@@ -47,12 +47,31 @@ def eld_route(request):
     drive_hours = summary.get('duration', 0) / 3600.0
     distance = summary.get('distance', 0) / 1609.34
     instructions = []
+    def build_instruction(step):
+        man = step.get('maneuver', {}) or {}
+        mtype = man.get('type', '')
+        mod = man.get('modifier', '')
+        name = step.get('name') or ''
+        ref = step.get('ref') or ''
+        parts = []
+        if mtype:
+            parts.append(mtype.replace('_', ' ').capitalize())
+        if mod:
+            parts.append(mod.capitalize())
+        if name:
+            parts.append(f"onto {name}")
+        elif ref:
+            parts.append(f"towards {ref}")
+        if not parts:
+            return 'Continue'
+        return ' '.join(parts)
+
     for leg_index, leg in enumerate(summary.get('legs', []), start=1):
         for step in leg.get('steps', []):
             instructions.append({
                 'distance_miles': round(step.get('distance', 0) / 1609.34, 2),
                 'duration_minutes': round(step.get('duration', 0) / 60, 2),
-                'instruction': step.get('maneuver', {}).get('instruction', 'Continue'),
+                'instruction': build_instruction(step),
             })
 
     remaining_drive = round(drive_hours, 2)

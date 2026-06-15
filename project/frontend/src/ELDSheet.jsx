@@ -56,11 +56,8 @@ export default function ELDSheet({days}){
                       )
                     })}
                   </div>
-                  <div className="eld-totals-cell">
-                    <div style={{display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid #f1f5f9'}}>
-                      <div style={{color:'#475569'}}>{row.label}</div>
-                      <div style={{fontWeight:700}}>{(day.events.filter(e=>statusRow[e.status]===row.key).reduce((s,e)=>s+e.minutes,0)/60).toFixed(2)}</div>
-                    </div>
+                  <div className="eld-totals-cell" style={{display:'flex', alignItems:'center', justifyContent:'flex-end', padding:'6px 0', borderBottom:'1px solid #f1f5f9'}}>
+                    <div style={{fontWeight:700}}>{(day.events.filter(e=>statusRow[e.status]===row.key).reduce((s,e)=>s+e.minutes,0)/60).toFixed(2)}</div>
                   </div>
                 </React.Fragment>
               ))}
