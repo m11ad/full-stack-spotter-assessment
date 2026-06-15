@@ -223,7 +223,7 @@ export default function App() {
         </section>
       </div>
       <footer className="app-footer">
-        Built for <a href="https://spotter.ai" target="_blank" rel="noreferrer">Spotter AI</a>
+        Developed by <a href="https://takinsoft.ir" target="_blank" rel="noreferrer">Milad</a> as an assessment for <a href="https://spotter.ai" target="_blank" rel="noreferrer">Spotter AI</a>
       </footer>
     </div>
   )
