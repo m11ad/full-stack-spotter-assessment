@@ -68,6 +68,26 @@ def eld_route(request):
             warnings.append('Exceeded 8-day HOS cycle')
             break
 
+        if cycle_hours >= 70:
+            # Apply 34-hour restart day if the 70/8-day limit is reached.
+            days.append({
+                'day': day,
+                'events': [
+                    {
+                        'status': 'sleeper',
+                        'start': '00:00',
+                        'end': '24:00',
+                        'minutes': 1440,
+                        'note': '34-hour restart',
+                    }
+                ],
+                'cycle_hours': round(cycle_hours, 2),
+            })
+            day += 1
+            cycle_hours = 0.0
+            warnings.append('34-hour restart applied')
+            continue
+
         events = []
         current_minute = 0
         add_segment(events, 'offDuty', 0, 8 * 60, 'Off Duty')
@@ -87,10 +107,10 @@ def eld_route(request):
             cycle_hours += first_leg
             remaining_drive -= first_leg
 
-            if drive_today > 8.0 and remaining_drive >= 0:
-                add_segment(events, 'offDuty', current_minute, current_minute + 30, '30-min Break')
+            if drive_today > 8.0 and remaining_drive > 0:
+                add_segment(events, 'offDuty', current_minute, current_minute + 30, '30-minute break')
                 current_minute += 30
-                second_leg = drive_today - 8.0
+                second_leg = min(drive_today - 8.0, remaining_drive)
                 add_segment(events, 'driving', current_minute, current_minute + int(second_leg * 60), 'Driving')
                 current_minute += int(second_leg * 60)
                 cycle_hours += second_leg
@@ -103,7 +123,10 @@ def eld_route(request):
             remaining_dropoff = 0.0
 
         if current_minute < 24 * 60:
-            add_segment(events, 'offDuty', current_minute, 24 * 60, 'Off Duty')
+            if remaining_drive > 0:
+                add_segment(events, 'sleeper', current_minute, 24 * 60, 'Sleeper Berth')
+            else:
+                add_segment(events, 'offDuty', current_minute, 24 * 60, 'Off Duty')
 
         days.append({
             'day': day,
@@ -112,10 +135,9 @@ def eld_route(request):
         })
         day += 1
 
-        if cycle_hours >= 70:
-            if remaining_drive > 0 or remaining_pickup > 0 or remaining_dropoff > 0:
-                warnings.append('70-hour cycle reached before trip completion')
-                break
+        if cycle_hours >= 70 and (remaining_drive > 0 or remaining_pickup > 0 or remaining_dropoff > 0):
+            warnings.append('70-hour cycle reached before trip completion')
+            continue
 
     fuel_stops = max(0, int(distance // 1000))
     response = {
