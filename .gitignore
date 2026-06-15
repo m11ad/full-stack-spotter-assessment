@@ -1,0 +1,10 @@
+# Operating system
+.DS_Store
+
+# Node
+project/frontend/node_modules/
+project/frontend/dist/
+
+# Python
+.venv/
+__pycache__/
