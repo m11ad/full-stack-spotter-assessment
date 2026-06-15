@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 const statusColors = {
   offDuty: '#e2e8f0',
@@ -26,16 +26,48 @@ const parseMinutes = (time) => {
   return h * 60 + m
 }
 
+const statusLabels = {
+  offDuty: 'Off Duty',
+  sleeper: 'Sleeper Berth',
+  driving: 'Driving',
+  onDuty: 'On Duty',
+}
+
+const formatDuration = (minutes) => {
+  const hours = minutes / 60
+  return `${hours % 1 === 0 ? hours : hours.toFixed(1)} hour${hours === 1 ? '' : 's'}`
+}
+
 export default function ELDSheet({days}){
+  const [selectedEvent, setSelectedEvent] = useState(null)
+
+  const summaryTotals = rows.map((row) => {
+    const minutes = days.reduce((sum, day) => {
+      return sum + day.events.filter((e) => statusRow[e.status] === row.key).reduce((s, e) => s + e.minutes, 0)
+    }, 0)
+    return { key: row.key, label: row.label, hours: (minutes / 60).toFixed(2) }
+  })
+
   return (
     <div className="eld-sheet">
       <h3>ELD Timeline</h3>
+      <div className="timeline-summary">
+        <h4>Timeline Summary</h4>
+        <div className="timeline-summary-grid">
+          {summaryTotals.map((line) => (
+            <React.Fragment key={line.key}>
+              <div className="timeline-summary-label">{line.label}</div>
+              <div className="timeline-summary-value">{line.hours}</div>
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
       <div className="eld-day-list">
         {days.map((day)=>(
           <div className="eld-day" key={day.day}>
             <div className="eld-day-header">
               <h4>Day {day.day}</h4>
-              <div className="eld-day-detail">Total cycle: {day.cycle_hours} h</div>
+              <div className="eld-day-detail">Total cycle</div>
             </div>
             <div className="eld-grid three-col">
               <div className="eld-hour-labels" style={{gridColumn: '2 / 3'}}>
@@ -51,8 +83,34 @@ export default function ELDSheet({days}){
                     {day.events.filter((event)=>statusRow[event.status] === row.key).map((event,index)=>{
                       const left = parseMinutes(event.start) / 1440 * 100
                       const width = event.minutes / 1440 * 100
+                      const eventKey = `${day.day}-${row.key}-${index}`
+                      const isSelected = selectedEvent?.key === eventKey
                       return (
-                        <div key={index} className="eld-segment" title={`${event.note} ${(event.minutes/60).toFixed(2)} h`} style={{left:`${left}%`, width:`${width}%`, background: statusColors[event.status]}} />
+                        <React.Fragment key={eventKey}>
+                          <div
+                            className="eld-segment"
+                            onClick={() => setSelectedEvent(isSelected ? null : {
+                              key: eventKey,
+                              day: day.day,
+                              status: event.status,
+                              note: event.note,
+                              start: event.start,
+                              end: event.end,
+                              left,
+                              width,
+                            })}
+                            style={{left:`${left}%`, width:`${width}%`, background: statusColors[event.status]}}
+                          />
+                          {isSelected && (
+                            <div className="eld-event-tooltip" style={{left: `${left + width / 2}%`}}>
+                              <div className="eld-event-tooltip-title">
+                                {statusLabels[event.status]} ({formatDuration(event.minutes)})
+                              </div>
+                              <div className="eld-event-tooltip-time">{event.start} - {event.end}</div>
+                              <button onClick={() => setSelectedEvent(null)}>Close</button>
+                            </div>
+                          )}
+                        </React.Fragment>
                       )
                     })}
                   </div>
