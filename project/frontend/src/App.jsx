@@ -206,9 +206,23 @@ export default function App() {
           {route ? (
             <div className="summary-card">
               <h2>Route Summary</h2>
-              <div>Distance: <strong>{route.distance_miles} mi</strong></div>
-              <div>Driving Time: <strong>{route.duration_hours} h</strong></div>
-              <div>Fuel Stops: <strong>{route.fuel_stops}</strong></div>
+              <div className="route-summary-grid">
+                <div className="route-metric">
+                  <div className="route-metric-label">Distance</div>
+                  <div className="route-metric-value">{route.distance_miles}</div>
+                  <div className="route-metric-unit">mi</div>
+                </div>
+                <div className="route-metric">
+                  <div className="route-metric-label">Driving Time</div>
+                  <div className="route-metric-value">{route.duration_hours}</div>
+                  <div className="route-metric-unit">h</div>
+                </div>
+                <div className="route-metric">
+                  <div className="route-metric-label">Fuel Stops</div>
+                  <div className="route-metric-value">{route.fuel_stops}</div>
+                  <div className="route-metric-unit"></div>
+                </div>
+              </div>
               {route.trip_schedule.warnings.length > 0 && (
                 <div className="warning-box">{route.trip_schedule.warnings.join('. ')}</div>
               )}

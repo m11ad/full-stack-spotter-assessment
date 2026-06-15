@@ -69,13 +69,15 @@ export default function ELDSheet({days}){
       <div className="timeline-summary">
         <h4>Timeline Summary</h4>
         <div className="timeline-summary-grid">
-          <div className="timeline-summary-label">Days</div>
-          <div className="timeline-summary-value">{days.length}</div>
+          <div>
+            <div className="timeline-summary-label">Days</div>
+            <div className="timeline-summary-value">{days.length}</div>
+          </div>
           {summaryTotals.map((line) => (
-            <React.Fragment key={line.key}>
+            <div key={line.key}>
               <div className="timeline-summary-label">{line.label}</div>
               <div className="timeline-summary-value">{line.hours}</div>
-            </React.Fragment>
+            </div>
           ))}
         </div>
       </div>
