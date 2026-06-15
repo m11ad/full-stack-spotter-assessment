@@ -63,28 +63,36 @@ export default function App(){
         <p>Enter current, pickup, and dropoff locations to generate route details and HOS logs.</p>
       </header>
       <form className="trip-form" onSubmit={handleSubmit}>
-        <div className="field-row">
-          <label>Current address or Lat,Lng</label>
+        <div className="field-block">
+          <label>Current location (address preferred)</label>
           <input name="curAddr" placeholder="e.g. New York, NY" />
-          <input name="curLat" defaultValue="40.7128" />
-          <input name="curLng" defaultValue="-74.0060" />
+          <div className="coord-row">
+            <input name="curLat" defaultValue="40.7128" placeholder="Lat" />
+            <input name="curLng" defaultValue="-74.0060" placeholder="Lng" />
+          </div>
         </div>
-        <div className="field-row">
-          <label>Pickup address or Lat,Lng</label>
+
+        <div className="field-block">
+          <label>Pickup location (address preferred)</label>
           <input name="pickupAddr" placeholder="e.g. Chicago, IL" />
-          <input name="pickupLat" defaultValue="41.8781" />
-          <input name="pickupLng" defaultValue="-87.6298" />
+          <div className="coord-row">
+            <input name="pickupLat" defaultValue="41.8781" placeholder="Lat" />
+            <input name="pickupLng" defaultValue="-87.6298" placeholder="Lng" />
+          </div>
         </div>
-        <div className="field-row">
-          <label>Dropoff address or Lat,Lng</label>
+
+        <div className="field-block">
+          <label>Dropoff location (address preferred)</label>
           <input name="dropAddr" placeholder="e.g. Los Angeles, CA" />
-          <input name="dropLat" defaultValue="34.0522" />
-          <input name="dropLng" defaultValue="-118.2437" />
+          <div className="coord-row">
+            <input name="dropLat" defaultValue="34.0522" placeholder="Lat" />
+            <input name="dropLng" defaultValue="-118.2437" placeholder="Lng" />
+          </div>
         </div>
-          <div className="field-row">
+
+        <div className="field-block small">
           <label>Current cycle used (hrs)</label>
           <input name="currentCycleUsed" defaultValue="0" />
-          <div />
         </div>
         <button type="submit" disabled={loading}>{loading ? 'Calculating...' : 'Generate Route'}</button>
         {error && <div className="error-box">{error}</div>}

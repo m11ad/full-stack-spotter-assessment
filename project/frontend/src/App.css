@@ -6,6 +6,12 @@ header p { margin: 0; color: #475569; }
 .field-row { display: grid; gap: 12px; grid-template-columns: 1.5fr 1fr 1fr; align-items: center; }
 .field-row label { font-weight: 600; color: #0f172a; }
 .field-row input { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 12px; }
+.field-block { display: block; margin-bottom: 12px; }
+.field-block label { display: block; font-weight:600; margin-bottom:8px; }
+.field-block input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 12px; }
+.coord-row { display: flex; gap: 8px; margin-top:8px; }
+.coord-row input { flex: 1 1 0; padding:8px 10px; }
+.field-block.small { max-width: 360px; }
 button { width: 180px; padding: 12px 18px; border: none; border-radius: 999px; background: #0f766e; color: white; cursor: pointer; font-weight: 700; }
 button:disabled { opacity: 0.7; cursor: not-allowed; }
 .error-box { margin-top: 12px; padding: 12px; background: #fee2e2; color: #991b1b; border-radius: 12px; }
@@ -23,7 +29,7 @@ button:disabled { opacity: 0.7; cursor: not-allowed; }
 .eld-day-header h4 { margin: 0; }
 .eld-day-detail { color: #475569; font-size: 0.95rem; }
 .eld-grid { display: grid; gap: 10px; }
-.eld-hour-labels { display: grid; grid-template-columns: repeat(13, 1fr); font-size: 0.75rem; color: #64748b; }
+.eld-hour-labels { display: grid; grid-template-columns: repeat(13, 1fr); font-size: 0.75rem; color: #64748b; margin-bottom:8px; }
 .eld-hour-label { text-align: center; }
 .eld-row { display: grid; grid-template-columns: 150px 1fr; gap: 10px; align-items: center; }
 .eld-row-title { font-size: 0.9rem; color: #334155; }
@@ -41,3 +47,6 @@ button:disabled { opacity: 0.7; cursor: not-allowed; }
 .eld-segment { position: absolute; top: 2px; bottom: 2px; border-radius: 8px; }
 .eld-events { margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 10px; display: grid; gap: 6px; }
 .eld-event-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #334155; }
+
+/* totals column styles */
+.eld-grid > div:nth-child(2) { display: block; }
