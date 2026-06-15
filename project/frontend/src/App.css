@@ -42,10 +42,14 @@ button:disabled { opacity: 0.7; cursor: not-allowed; }
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: linear-gradient(to right, transparent 0%, transparent 7.69%, rgba(148,163,184,.18) 7.69%, rgba(148,163,184,.18) 7.69%, transparent 7.69%), linear-gradient(to right, transparent 0%, transparent 15.38%, rgba(148,163,184,.18) 15.38%, rgba(148,163,184,.18) 15.38%, transparent 15.38%);
-  background-size: 7.6923% 100%;
+  background-image: linear-gradient(to right, rgba(148,163,184,.18) 1px, transparent 1px), linear-gradient(to right, rgba(148,163,184,.18) 2px, transparent 2px);
+  background-size: 100% 100%, 7.6923% 100%;
+  background-position: 0 0, 0 0;
   pointer-events: none;
 }
+.app-footer { margin-top: 24px; padding: 18px 20px; text-align: center; color: #475569; font-size: 0.95rem; }
+.app-footer a { color: #0f766e; text-decoration: none; font-weight: 700; }
+.app-footer a:hover { text-decoration: underline; }
 .eld-track::before { content: '';
   position: absolute;
   top: 0;

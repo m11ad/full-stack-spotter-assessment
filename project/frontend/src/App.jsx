@@ -5,21 +5,57 @@ import 'leaflet/dist/leaflet.css'
 import ELDSheet from './ELDSheet'
 import './App.css'
 
-export default function App(){
+const cityOptions = [
+  'New York, NY',
+  'Los Angeles, CA',
+  'Chicago, IL',
+  'Houston, TX',
+  'Phoenix, AZ',
+  'Philadelphia, PA',
+  'San Antonio, TX',
+  'San Diego, CA',
+  'Dallas, TX',
+  'San Jose, CA',
+  'Austin, TX',
+  'Jacksonville, FL',
+  'San Francisco, CA',
+  'Columbus, OH',
+  'Fort Worth, TX',
+  'Charlotte, NC',
+  'Seattle, WA',
+  'Denver, CO',
+  'Washington, DC',
+  'Boston, MA',
+]
+
+export default function App() {
   const [route, setRoute] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [currentCity, setCurrentCity] = useState('New York, NY')
+  const [pickupCity, setPickupCity] = useState('Chicago, IL')
+  const [dropoffCity, setDropoffCity] = useState('Los Angeles, CA')
+  const [currentLat, setCurrentLat] = useState('40.7128')
+  const [currentLng, setCurrentLng] = useState('-74.0060')
+  const [pickupLat, setPickupLat] = useState('41.8781')
+  const [pickupLng, setPickupLng] = useState('-87.6298')
+  const [dropLat, setDropLat] = useState('34.0522')
+  const [dropLng, setDropLng] = useState('-118.2437')
+  const [currentCycleUsed, setCurrentCycleUsed] = useState('0')
   const mapRef = useRef(null)
   const polylineRef = useRef(null)
+  const markerRefs = useRef([])
 
-  const geocode = async (addr, lat, lng)=>{
-    if(!addr) return {lat: parseFloat(lat), lng: parseFloat(lng)}
-    const res = await axios.get('https://nominatim.openstreetmap.org/search', {params:{q:addr, format:'json', limit:1}})
+  const geocodeCity = async (query) => {
+    if (!query) throw new Error('Please enter a city')
+    const res = await axios.get('https://nominatim.openstreetmap.org/search', {
+      params: { q: query, format: 'json', limit: 1, countrycodes: 'us' },
+    })
     if (!res.data || res.data.length === 0) {
-      throw new Error(`Unable to geocode: ${addr}`)
+      throw new Error(`Unable to geocode: ${query}`)
     }
     const r = res.data[0]
-    return {lat: parseFloat(r.lat), lng: parseFloat(r.lon)}
+    return { lat: parseFloat(r.lat), lng: parseFloat(r.lon) }
   }
 
   const initMap = (center) => {
@@ -30,27 +66,64 @@ export default function App(){
     return map
   }
 
+  const clearMapMarkers = () => {
+    markerRefs.current.forEach((marker) => mapRef.current?.removeLayer(marker))
+    markerRefs.current = []
+  }
+
+  const addMapMarker = (map, coords, label, description) => {
+    const marker = L.marker(coords).addTo(map)
+    marker.bindPopup(`<strong>${label}</strong><br/>${description}`)
+    markerRefs.current.push(marker)
+  }
+
+  const handleCityChange = (value, setter) => {
+    setter(value)
+  }
+
+  const handleCityBlur = async (value, setLat, setLng) => {
+    if (!value) return
+    try {
+      const coords = await geocodeCity(value)
+      setLat(coords.lat.toFixed(6))
+      setLng(coords.lng.toFixed(6))
+    } catch (err) {
+      // ignore until submit
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const form = new FormData(e.target)
     try {
-      const current = await geocode(form.get('curAddr'), form.get('curLat'), form.get('curLng'))
-      const pickup = await geocode(form.get('pickupAddr'), form.get('pickupLat'), form.get('pickupLng'))
-      const dropoff = await geocode(form.get('dropAddr'), form.get('dropLat'), form.get('dropLng'))
-      const currentCycleUsed = parseFloat(form.get('currentCycleUsed') || '0')
-      const res = await axios.post('/api/eld/', {current, pickup, dropoff, currentCycleUsed})
-      setRoute(res.data)
+      const current = { lat: parseFloat(currentLat), lng: parseFloat(currentLng) }
+      const pickup = { lat: parseFloat(pickupLat), lng: parseFloat(pickupLng) }
+      const dropoff = { lat: parseFloat(dropLat), lng: parseFloat(dropLng) }
+      const res = await axios.post('/api/eld/', {
+        current,
+        pickup,
+        dropoff,
+        currentCycleUsed: parseFloat(currentCycleUsed || '0'),
+      })
+      const routeData = res.data
+      routeData.instructions = routeData.instructions.filter((instr) => {
+        return !(instr.distance_miles < 0.05 && instr.duration_minutes < 0.25 && instr.instruction === 'Continue')
+      }).slice(0, 20)
+      setRoute(routeData)
       const map = initMap([current.lat, current.lng])
-      const coords = res.data.route.geometry.coordinates.map(c=>[c[1], c[0]])
+      clearMapMarkers()
       if (polylineRef.current) {
         map.removeLayer(polylineRef.current)
       }
-      polylineRef.current = L.polyline(coords, {color: '#2a9d8f', weight: 5}).addTo(map)
-      map.fitBounds(polylineRef.current.getBounds(), {padding:[40,40]})
+      const coords = routeData.route.geometry.coordinates.map((c) => [c[1], c[0]])
+      polylineRef.current = L.polyline(coords, { color: '#2a9d8f', weight: 5 }).addTo(map)
+      addMapMarker(map, [current.lat, current.lng], 'Current', currentCity)
+      addMapMarker(map, [pickup.lat, pickup.lng], 'Pickup', pickupCity)
+      addMapMarker(map, [dropoff.lat, dropoff.lng], 'Dropoff', dropoffCity)
+      map.fitBounds(polylineRef.current.getBounds(), { padding: [40, 40] })
     } catch (err) {
-      setError(err.message || 'Unable to compute route')
+      setError(err.response?.data?.error || err.message || 'Unable to compute route')
     } finally {
       setLoading(false)
     }
@@ -64,42 +137,70 @@ export default function App(){
       </header>
       <form className="trip-form" onSubmit={handleSubmit}>
         <div className="field-block">
-          <label>Current location (address preferred)</label>
-          <input name="curAddr" placeholder="e.g. New York, NY" />
+          <label>Current location (USA city)</label>
+          <input
+            list="city-list"
+            value={currentCity}
+            onChange={(e) => handleCityChange(e.target.value, setCurrentCity)}
+            onBlur={() => handleCityBlur(currentCity, setCurrentLat, setCurrentLng)}
+            placeholder="Choose a city"
+          />
           <div className="coord-row">
-            <input name="curLat" defaultValue="40.7128" placeholder="Lat" />
-            <input name="curLng" defaultValue="-74.0060" placeholder="Lng" />
+            <input value={currentLat} onChange={(e) => setCurrentLat(e.target.value)} placeholder="Lat" />
+            <input value={currentLng} onChange={(e) => setCurrentLng(e.target.value)} placeholder="Lng" />
           </div>
         </div>
 
         <div className="field-block">
-          <label>Pickup location (address preferred)</label>
-          <input name="pickupAddr" placeholder="e.g. Chicago, IL" />
+          <label>Pickup location (USA city)</label>
+          <input
+            list="city-list"
+            value={pickupCity}
+            onChange={(e) => handleCityChange(e.target.value, setPickupCity)}
+            onBlur={() => handleCityBlur(pickupCity, setPickupLat, setPickupLng)}
+            placeholder="Choose a city"
+          />
           <div className="coord-row">
-            <input name="pickupLat" defaultValue="41.8781" placeholder="Lat" />
-            <input name="pickupLng" defaultValue="-87.6298" placeholder="Lng" />
+            <input value={pickupLat} onChange={(e) => setPickupLat(e.target.value)} placeholder="Lat" />
+            <input value={pickupLng} onChange={(e) => setPickupLng(e.target.value)} placeholder="Lng" />
           </div>
         </div>
 
         <div className="field-block">
-          <label>Dropoff location (address preferred)</label>
-          <input name="dropAddr" placeholder="e.g. Los Angeles, CA" />
+          <label>Dropoff location (USA city)</label>
+          <input
+            list="city-list"
+            value={dropoffCity}
+            onChange={(e) => handleCityChange(e.target.value, setDropoffCity)}
+            onBlur={() => handleCityBlur(dropoffCity, setDropLat, setDropLng)}
+            placeholder="Choose a city"
+          />
           <div className="coord-row">
-            <input name="dropLat" defaultValue="34.0522" placeholder="Lat" />
-            <input name="dropLng" defaultValue="-118.2437" placeholder="Lng" />
+            <input value={dropLat} onChange={(e) => setDropLat(e.target.value)} placeholder="Lat" />
+            <input value={dropLng} onChange={(e) => setDropLng(e.target.value)} placeholder="Lng" />
           </div>
         </div>
 
         <div className="field-block small">
           <label>Current cycle used (hrs)</label>
-          <input name="currentCycleUsed" defaultValue="0" />
+          <input value={currentCycleUsed} onChange={(e) => setCurrentCycleUsed(e.target.value)} />
         </div>
         <button type="submit" disabled={loading}>{loading ? 'Calculating...' : 'Generate Route'}</button>
         {error && <div className="error-box">{error}</div>}
+        <datalist id="city-list">
+          {cityOptions.map((city) => <option key={city} value={city} />)}
+        </datalist>
       </form>
+
       <div className="content-grid">
         <section className="map-panel">
           <div id="map" className="map-container"></div>
+          {route && (
+            <div className="map-legend">
+              <div><strong>Map markers</strong></div>
+              <div>Current location, pickup, and dropoff are shown with markers.</div>
+            </div>
+          )}
         </section>
         <section className="summary-panel">
           {route ? (
@@ -108,16 +209,6 @@ export default function App(){
               <div>Distance: <strong>{route.distance_miles} mi</strong></div>
               <div>Driving Time: <strong>{route.duration_hours} h</strong></div>
               <div>Fuel Stops: <strong>{route.fuel_stops}</strong></div>
-              {route.instructions && route.instructions.length > 0 && (
-                <div>
-                  <h3>Route Instructions</h3>
-                  <ul>
-                    {route.instructions.slice(0, 6).map((step, idx) => (
-                      <li key={idx}>{step.instruction} ({step.distance_miles} mi, {step.duration_minutes} min)</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
               {route.trip_schedule.warnings.length > 0 && (
                 <div className="warning-box">{route.trip_schedule.warnings.join('. ')}</div>
               )}
@@ -131,6 +222,10 @@ export default function App(){
           )}
         </section>
       </div>
+      <footer className="app-footer">
+        Developed by <a href="https://takinsoft.ir" target="_blank" rel="noreferrer">Milad</a> as an assessment for <a href="https://takinsoft.ir" target="_blank" rel="noreferrer">Spotter AI</a>
+      </footer>
     </div>
   )
 }
+
