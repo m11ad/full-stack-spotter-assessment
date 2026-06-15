@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useRef, useEffect} from 'react'
 
 const statusColors = {
   offDuty: '#e2e8f0',
@@ -40,6 +40,21 @@ const formatDuration = (minutes) => {
 
 export default function ELDSheet({days}){
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const sheetRef = useRef(null)
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!selectedEvent) return
+      const target = event.target
+      if (target.closest('.eld-event-tooltip') || target.closest('.eld-segment')) {
+        return
+      }
+      setSelectedEvent(null)
+    }
+
+    document.addEventListener('click', handleOutsideClick)
+    return () => document.removeEventListener('click', handleOutsideClick)
+  }, [selectedEvent])
 
   const summaryTotals = rows.map((row) => {
     const minutes = days.reduce((sum, day) => {
@@ -49,7 +64,7 @@ export default function ELDSheet({days}){
   })
 
   return (
-    <div className="eld-sheet">
+    <div className="eld-sheet" ref={sheetRef}>
       <h3>ELD Timeline</h3>
       <div className="timeline-summary">
         <h4>Timeline Summary</h4>
@@ -107,7 +122,6 @@ export default function ELDSheet({days}){
                                 {statusLabels[event.status]} ({formatDuration(event.minutes)})
                               </div>
                               <div className="eld-event-tooltip-time">{event.start} - {event.end}</div>
-                              <button onClick={() => setSelectedEvent(null)}>Close</button>
                             </div>
                           )}
                         </React.Fragment>

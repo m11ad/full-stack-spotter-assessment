@@ -40,7 +40,7 @@ button:disabled { opacity: 0.7; cursor: not-allowed; }
 .eld-row-title { font-size: 0.9rem; color: #334155; padding: 6px 0; }
 .cell-title { grid-column: 1 / 2; }
 .eld-totals-cell { grid-column: 3 / 4; }
-.eld-track { grid-column: 2 / 3; position: relative; height: 28px; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc; overflow: hidden; }
+.eld-track { grid-column: 2 / 3; position: relative; height: 28px; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc; overflow: visible; }
 .eld-track::before { content: '';
   position: absolute;
   top: 0;
@@ -53,19 +53,18 @@ button:disabled { opacity: 0.7; cursor: not-allowed; }
 }
 .eld-segment { position: absolute; top: 2px; bottom: 2px; border-radius: 8px; cursor: pointer; }
 .eld-segment:hover { opacity: 0.95; }
-.eld-event-tooltip { position: absolute; top: -108px; transform: translateX(-50%); min-width: 190px; border-radius: 14px; background: rgba(15,23,42,.95); color: #f8fafc; padding: 14px 16px; box-shadow: 0 18px 40px rgba(15,23,42,.18); z-index: 10; font-size: 0.88rem; }
+.eld-event-tooltip { position: absolute; top: 32px; transform: translateX(-50%); min-width: 190px; border-radius: 14px; background: rgba(15,23,42,.95); color: #f8fafc; padding: 14px 16px; box-shadow: 0 18px 40px rgba(15,23,42,.18); z-index: 10; font-size: 0.88rem; }
 .eld-event-tooltip-title { font-weight: 700; margin-bottom: 6px; }
-.eld-event-tooltip-time { color: #cbd5e1; margin-bottom: 10px; }
+.eld-event-tooltip-time { color: #cbd5e1; margin-bottom: 0; }
 .eld-event-tooltip::after { content: '';
   position: absolute;
   left: 50%;
-  bottom: -8px;
+  top: -8px;
   transform: translateX(-50%);
-  border-width: 8px 8px 0 8px;
+  border-width: 0 8px 8px 8px;
   border-style: solid;
-  border-color: rgba(15,23,42,.95) transparent transparent transparent;
+  border-color: transparent transparent rgba(15,23,42,.95) transparent;
 }
-.eld-event-tooltip button { margin-top: 4px; padding: 6px 10px; border: none; border-radius: 999px; background: #22c55e; color: white; cursor: pointer; }
 .app-footer { margin-top: 24px; padding: 18px 20px; text-align: center; color: #475569; font-size: 0.95rem; }
 .app-footer a { color: #0f766e; text-decoration: none; font-weight: 700; }
 .app-footer a:hover { text-decoration: underline; }
