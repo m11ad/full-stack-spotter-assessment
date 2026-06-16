@@ -14,6 +14,13 @@ header p { margin: 0; font-size: 1.1rem; color: #475569; line-height: 1.5; max-w
 .field-block input { width: 100%; padding: 14px 16px; border: 1.5px solid #e2e8f0; border-radius: 14px; background: #ffffff; font-size: 0.95rem; color: #0f172a; transition: all 0.2s ease; }
 .field-block input:hover { border-color: #cbd5e1; background: #f8fafc; }
 .field-block input:focus { outline: none; border-color: #0f766e; background: #ffffff; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08); }
+
+/* Prevent datalist suggestions from touching the form's right edge
+   reduce the effective input width for inputs that use a datalist */
+.field-block input[list] {
+  box-sizing: border-box;
+  width: 100%;
+}
 .coord-row { display: flex; gap: 8px; margin-top:8px; }
 .coord-row { display: flex; gap: 12px; margin-top: 12px; }
 .coord-row input { flex: 1 1 0; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 12px; background: #f1f5f9; font-size: 0.9rem; color: #0f172a; transition: all 0.2s ease; }
