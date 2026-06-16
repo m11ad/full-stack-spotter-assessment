@@ -129,9 +129,12 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <header>
-        <h1>Spotter ELD Route Planner</h1>
-        <p>Enter current, pickup, and dropoff locations to generate route details and HOS logs.</p>
+      <header className="hero">
+        <div className="hero-inner">
+          <div className="hero-badge">Spotter ELD</div>
+          <h1>Spotter ELD Route Planner</h1>
+          <p className="hero-sub">Enter current, pickup, and dropoff locations to generate route details and HOS logs.</p>
+        </div>
       </header>
       <form className="trip-form" onSubmit={handleSubmit}>
         <div className="field-block">

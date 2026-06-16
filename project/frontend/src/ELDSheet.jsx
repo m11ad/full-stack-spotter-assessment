@@ -89,7 +89,16 @@ export default function ELDSheet({days}){
             <div className="eld-grid three-col">
               <div className="eld-hour-labels" style={{gridColumn: '2 / 3'}}>
                 {Array.from({length:13}, (_, idx)=>(
-                  <div key={idx} className="eld-hour-label">{idx * 2}</div>
+                  <div
+                    key={idx}
+                    className="eld-hour-label"
+                    style={{
+                      left: `${(idx * 100) / 12}%`,
+                      transform: idx === 0 ? 'translateX(0)' : idx === 12 ? 'translateX(-100%)' : 'translateX(-50%)',
+                    }}
+                  >
+                    {idx * 2}
+                  </div>
                 ))}
               </div>
 
