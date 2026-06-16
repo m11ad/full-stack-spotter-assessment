@@ -105,18 +105,16 @@ export default function App() {
         pickup,
         dropoff,
         currentCycleUsed: parseFloat(currentCycleUsed || '0'),
+        includeGeometry: true,
       })
       const routeData = res.data
-      routeData.instructions = routeData.instructions.filter((instr) => {
-        return !(instr.distance_miles < 0.05 && instr.duration_minutes < 0.25 && instr.instruction === 'Continue')
-      }).slice(0, 20)
       setRoute(routeData)
       const map = initMap([current.lat, current.lng])
       clearMapMarkers()
       if (polylineRef.current) {
         map.removeLayer(polylineRef.current)
       }
-      const coords = routeData.route.geometry.coordinates.map((c) => [c[1], c[0]])
+      const coords = routeData.route_geometry.map((c) => [c[1], c[0]])
       polylineRef.current = L.polyline(coords, { color: '#2a9d8f', weight: 5 }).addTo(map)
       addMapMarker(map, [current.lat, current.lng], 'Current', currentCity)
       addMapMarker(map, [pickup.lat, pickup.lng], 'Pickup', pickupCity)

@@ -31,6 +31,7 @@ def eld_route(request):
     pickup = data.get('pickup')
     dropoff = data.get('dropoff')
     cycle_used = float(data.get('currentCycleUsed', 0))
+    include_geometry = data.get('includeGeometry', False)
 
     coords = [cur, pickup, dropoff]
     try:
@@ -160,14 +161,14 @@ def eld_route(request):
 
     fuel_stops = max(0, int(distance // 1000))
     response = {
-        'route': summary,
         'distance_miles': round(distance, 2),
         'duration_hours': round(drive_hours, 2),
         'fuel_stops': fuel_stops,
-        'instructions': instructions,
         'trip_schedule': {
             'days': days,
             'warnings': warnings,
         },
     }
+    if include_geometry:
+        response['route_geometry'] = summary.get('geometry', {}).get('coordinates', [])
     return JsonResponse(response)
