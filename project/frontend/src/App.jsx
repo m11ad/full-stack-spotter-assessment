@@ -29,6 +29,8 @@ const cityOptions = [
 ]
 
 export default function App() {
+  const [suggestions, setSuggestions] = useState([])
+  const [activeSuggestField, setActiveSuggestField] = useState(null)
   const [route, setRoute] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -79,6 +81,9 @@ export default function App() {
 
   const handleCityChange = (value, setter) => {
     setter(value)
+    // update suggestions as user types
+    const list = cityOptions.filter((c) => c.toLowerCase().includes(value.toLowerCase())).slice(0, 8)
+    setSuggestions(list)
   }
 
   const handleCityBlur = async (value, setLat, setLng) => {
@@ -89,6 +94,20 @@ export default function App() {
       setLng(coords.lng.toFixed(6))
     } catch (err) {
       // ignore until submit
+    }
+    // hide suggestions after blur
+    setTimeout(() => setActiveSuggestField(null), 150)
+  }
+
+  const handleSuggestSelect = async (city, setter, setLat, setLng) => {
+    setter(city)
+    setActiveSuggestField(null)
+    try {
+      const coords = await geocodeCity(city)
+      setLat(coords.lat.toFixed(6))
+      setLng(coords.lng.toFixed(6))
+    } catch (err) {
+      // ignore
     }
   }
 
@@ -139,13 +158,23 @@ export default function App() {
       <form className="trip-form" onSubmit={handleSubmit}>
         <div className="field-block">
           <label>Current location (USA city)</label>
-          <input
-            list="city-list"
-            value={currentCity}
-            onChange={(e) => handleCityChange(e.target.value, setCurrentCity)}
-            onBlur={() => handleCityBlur(currentCity, setCurrentLat, setCurrentLng)}
-            placeholder="Choose a city"
-          />
+          <div className="input-with-suggestions">
+            <input
+              list="city-list"
+              value={currentCity}
+              onChange={(e) => handleCityChange(e.target.value, setCurrentCity)}
+              onFocus={() => { setActiveSuggestField('current'); setSuggestions(cityOptions.slice(0,8)) }}
+              onBlur={() => handleCityBlur(currentCity, setCurrentLat, setCurrentLng)}
+              placeholder="Choose a city"
+            />
+            {activeSuggestField === 'current' && suggestions.length > 0 && (
+              <ul className="suggestions-list">
+                {suggestions.map((c) => (
+                  <li key={c} className="suggestion-item" onMouseDown={(e)=>e.preventDefault()} onClick={() => handleSuggestSelect(c, setCurrentCity, setCurrentLat, setCurrentLng)}>{c}</li>
+                ))}
+              </ul>
+            )}
+          </div>
           <div className="coord-row">
             <input value={currentLat} onChange={(e) => setCurrentLat(e.target.value)} placeholder="Lat" />
             <input value={currentLng} onChange={(e) => setCurrentLng(e.target.value)} placeholder="Lng" />
@@ -154,13 +183,23 @@ export default function App() {
 
         <div className="field-block">
           <label>Pickup location (USA city)</label>
-          <input
-            list="city-list"
-            value={pickupCity}
-            onChange={(e) => handleCityChange(e.target.value, setPickupCity)}
-            onBlur={() => handleCityBlur(pickupCity, setPickupLat, setPickupLng)}
-            placeholder="Choose a city"
-          />
+          <div className="input-with-suggestions">
+            <input
+              list="city-list"
+              value={pickupCity}
+              onChange={(e) => handleCityChange(e.target.value, setPickupCity)}
+              onFocus={() => { setActiveSuggestField('pickup'); setSuggestions(cityOptions.slice(0,8)) }}
+              onBlur={() => handleCityBlur(pickupCity, setPickupLat, setPickupLng)}
+              placeholder="Choose a city"
+            />
+            {activeSuggestField === 'pickup' && suggestions.length > 0 && (
+              <ul className="suggestions-list">
+                {suggestions.map((c) => (
+                  <li key={c} className="suggestion-item" onMouseDown={(e)=>e.preventDefault()} onClick={() => handleSuggestSelect(c, setPickupCity, setPickupLat, setPickupLng)}>{c}</li>
+                ))}
+              </ul>
+            )}
+          </div>
           <div className="coord-row">
             <input value={pickupLat} onChange={(e) => setPickupLat(e.target.value)} placeholder="Lat" />
             <input value={pickupLng} onChange={(e) => setPickupLng(e.target.value)} placeholder="Lng" />
@@ -169,13 +208,23 @@ export default function App() {
 
         <div className="field-block">
           <label>Dropoff location (USA city)</label>
-          <input
-            list="city-list"
-            value={dropoffCity}
-            onChange={(e) => handleCityChange(e.target.value, setDropoffCity)}
-            onBlur={() => handleCityBlur(dropoffCity, setDropLat, setDropLng)}
-            placeholder="Choose a city"
-          />
+          <div className="input-with-suggestions">
+            <input
+              list="city-list"
+              value={dropoffCity}
+              onChange={(e) => handleCityChange(e.target.value, setDropoffCity)}
+              onFocus={() => { setActiveSuggestField('dropoff'); setSuggestions(cityOptions.slice(0,8)) }}
+              onBlur={() => handleCityBlur(dropoffCity, setDropLat, setDropLng)}
+              placeholder="Choose a city"
+            />
+            {activeSuggestField === 'dropoff' && suggestions.length > 0 && (
+              <ul className="suggestions-list">
+                {suggestions.map((c) => (
+                  <li key={c} className="suggestion-item" onMouseDown={(e)=>e.preventDefault()} onClick={() => handleSuggestSelect(c, setDropoffCity, setDropLat, setDropLng)}>{c}</li>
+                ))}
+              </ul>
+            )}
+          </div>
           <div className="coord-row">
             <input value={dropLat} onChange={(e) => setDropLat(e.target.value)} placeholder="Lat" />
             <input value={dropLng} onChange={(e) => setDropLng(e.target.value)} placeholder="Lng" />

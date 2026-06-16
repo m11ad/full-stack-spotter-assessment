@@ -34,6 +34,11 @@ header p { margin: 0; font-size: 1.1rem; color: #475569; line-height: 1.5; max-w
 .coord-row input:hover { border-color: #cbd5e1; }
 .coord-row input:focus { outline: none; border-color: #0f766e; background: #ffffff; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08); }
 .field-block.small { max-width: 360px; }
+/* suggestions dropdown for city inputs */
+.input-with-suggestions { position: relative; }
+.suggestions-list { position: absolute; left: 0; right: 0; top: calc(100% + 8px); background: white; border: 1px solid #e6eef0; border-radius: 10px; box-shadow: 0 12px 30px rgba(15,23,42,.06); z-index: 50; max-height: 220px; overflow: auto; padding: 6px 6px; }
+.suggestion-item { padding: 8px 10px; cursor: pointer; border-radius: 8px; color: #0f172a; font-weight: 600; }
+.suggestion-item:hover { background: #f1f5f9; }
 button { width: 180px; padding: 12px 18px; border: none; border-radius: 999px; background: #0f766e; color: white; cursor: pointer; font-weight: 700; }
 button { width: 100%; max-width: 240px; padding: 16px 32px; border: none; border-radius: 14px; background: linear-gradient(135deg, #0f766e 0%, #1a8f7f 100%); color: white; cursor: pointer; font-weight: 800; font-size: 1rem; letter-spacing: 0.04em; text-transform: uppercase; transition: all 0.3s ease; box-shadow: 0 8px 24px rgba(15, 118, 110, 0.24); }
 button:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(15, 118, 110, 0.32); }
