@@ -255,7 +255,16 @@ export default function App() {
         <section className="summary-panel">
           {route ? (
             <div className="summary-card">
-              <h2>Route Summary</h2>
+              <div className="summary-header">
+                <h2>Route Summary</h2>
+                {route.trip_schedule?.warnings?.length > 0 && (
+                  <div className="summary-warnings">
+                    {route.trip_schedule.warnings.map((w, i) => (
+                      <span key={i} className="restart-badge">{w}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="route-summary-grid">
                 <div className="route-metric">
                   <div className="route-metric-label">Distance</div>
@@ -273,9 +282,7 @@ export default function App() {
                   <div className="route-metric-unit"></div>
                 </div>
               </div>
-              {route.trip_schedule.warnings.length > 0 && (
-                <div className="warning-box">{route.trip_schedule.warnings.join('. ')}</div>
-              )}
+             
               <ELDSheet days={route.trip_schedule.days} />
             </div>
           ) : (
