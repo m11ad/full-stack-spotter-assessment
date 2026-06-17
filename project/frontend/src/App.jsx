@@ -5,6 +5,10 @@ import 'leaflet/dist/leaflet.css'
 import ELDSheet from './ELDSheet'
 import './App.css'
 
+// Empty string -> relative '/api/...' calls, handled by the Vite dev proxy locally.
+// Set via .env.production / .env.development, see those files for the actual values.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+
 const cityOptions = [
   'New York, NY',
   'Los Angeles, CA',
@@ -119,7 +123,7 @@ export default function App() {
       const current = { lat: parseFloat(currentLat), lng: parseFloat(currentLng) }
       const pickup = { lat: parseFloat(pickupLat), lng: parseFloat(pickupLng) }
       const dropoff = { lat: parseFloat(dropLat), lng: parseFloat(dropLng) }
-      const res = await axios.post('/api/eld/', {
+      const res = await axios.post(`${API_BASE}/api/eld/`, {
         current,
         pickup,
         dropoff,
