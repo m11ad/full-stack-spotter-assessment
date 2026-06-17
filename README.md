@@ -35,6 +35,11 @@ It is a full-stack application composed of:
 - Handles route visualization and rendering logic
 
 ---
+## 🚀 Live Demo
+
+- 🌐 Frontend (Live App with the production API): https://full-stack-spotter-assessment.onrender.com/
+- 🔌 Backend API (POST Only): https://full-stack-spotter-assessment.onrender.com/api/eld
+---
 
 ## 🔁 Architecture Overview
 
