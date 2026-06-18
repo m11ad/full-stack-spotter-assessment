@@ -111,6 +111,11 @@ button:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
 .app-footer a:hover { text-decoration: underline; }
 .eld-events { margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 10px; display: grid; gap: 6px; }
 .eld-event-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #334155; }
-
+.custom-emoji-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 36px !important;
+}
 /* totals column styles */
 

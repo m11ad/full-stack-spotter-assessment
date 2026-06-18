@@ -42,7 +42,47 @@ L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
 })
+// Custom emoji icons
+const currentIcon = L.divIcon({
+  html: '🚛',
+  className: 'custom-emoji-icon',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
 
+const pickupIcon = L.divIcon({
+  html: '📦',
+  className: 'custom-emoji-icon',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
+
+const dropoffIcon = L.divIcon({
+  html: '🏁',
+  className: 'custom-emoji-icon',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
+
+const fuelStopIcon = L.divIcon({
+  html: '⛽',
+  className: 'custom-emoji-icon',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
+
+const sleeperIcon = L.divIcon({
+  html: '🛏️',
+  className: 'custom-emoji-icon',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
+const createEmojiIcon = (emoji) => L.divIcon({
+  html: emoji,
+  className: 'custom-emoji-icon',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
 export default function App() {
   const [suggestions, setSuggestions] = useState([])
   const [activeSuggestField, setActiveSuggestField] = useState(null)
@@ -88,11 +128,11 @@ export default function App() {
     markerRefs.current = []
   }
 
-  const addMapMarker = (map, coords, label, description) => {
-    const marker = L.marker(coords).addTo(map)
-    marker.bindPopup(`<strong>${label}</strong><br/>${description}`)
-    markerRefs.current.push(marker)
-  }
+  const addMapMarker = (map, coords, label, description, icon = null) => {
+    const marker = L.marker(coords, { icon: icon || L.Icon.Default }).addTo(map);
+    marker.bindPopup(`<strong>${label}</strong><br/>${description}`);
+    markerRefs.current.push(marker);
+  };
 
   const handleCityChange = (value, setter) => {
     setter(value)
@@ -126,40 +166,85 @@ export default function App() {
     }
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-    try {
-      const current = { lat: parseFloat(currentLat), lng: parseFloat(currentLng) }
-      const pickup = { lat: parseFloat(pickupLat), lng: parseFloat(pickupLng) }
-      const dropoff = { lat: parseFloat(dropLat), lng: parseFloat(dropLng) }
-      const res = await axios.post(`${API_BASE}/api/eld/`, {
-        current,
-        pickup,
-        dropoff,
-        currentCycleUsed: parseFloat(currentCycleUsed || '0'),
-        includeGeometry: true,
-      })
-      const routeData = res.data
-      setRoute(routeData)
-      const map = initMap([current.lat, current.lng])
-      clearMapMarkers()
-      if (polylineRef.current) {
-        map.removeLayer(polylineRef.current)
-      }
-      const coords = routeData.route_geometry.map((c) => [c[1], c[0]])
-      polylineRef.current = L.polyline(coords, { color: '#2a9d8f', weight: 5 }).addTo(map)
-      addMapMarker(map, [current.lat, current.lng], 'Current', currentCity)
-      addMapMarker(map, [pickup.lat, pickup.lng], 'Pickup', pickupCity)
-      addMapMarker(map, [dropoff.lat, dropoff.lng], 'Dropoff', dropoffCity)
-      map.fitBounds(polylineRef.current.getBounds(), { padding: [40, 40] })
-    } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Unable to compute route')
-    } finally {
-      setLoading(false)
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+  try {
+    const current = { lat: parseFloat(currentLat), lng: parseFloat(currentLng) };
+    const pickup = { lat: parseFloat(pickupLat), lng: parseFloat(pickupLng) };
+    const dropoff = { lat: parseFloat(dropLat), lng: parseFloat(dropLng) };
+
+    const res = await axios.post(`${API_BASE}/api/eld/`, {
+      current,
+      pickup,
+      dropoff,
+      currentCycleUsed: parseFloat(currentCycleUsed || '0'),
+      includeGeometry: true,
+    });
+    const routeData = res.data;
+    setRoute(routeData);
+
+    // Initialize map
+    const map = initMap([current.lat, current.lng]);
+    clearMapMarkers();
+
+    if (polylineRef.current) {
+      map.removeLayer(polylineRef.current);
     }
+
+    // Draw route polyline
+    const coords = routeData.route_geometry.map((c) => [c[1], c[0]]);
+    polylineRef.current = L.polyline(coords, { color: '#2a9d8f', weight: 5 }).addTo(map);
+
+    // Add current, pickup, dropoff markers with emoji icons
+    addMapMarker(map, [current.lat, current.lng], 'Current', currentCity, createEmojiIcon('🚛'));
+    addMapMarker(map, [pickup.lat, pickup.lng], 'Pickup', pickupCity, createEmojiIcon('📦'));
+    addMapMarker(map, [dropoff.lat, dropoff.lng], 'Dropoff', dropoffCity, createEmojiIcon('🏁'));
+
+    // Add fuel stops
+    if (routeData.fuel_stops > 0) {
+      for (let i = 1; i <= routeData.fuel_stops; i++) {
+        const segmentIndex = Math.floor((i / (routeData.fuel_stops + 1)) * coords.length);
+        const fuelStopCoord = coords[segmentIndex];
+        addMapMarker(
+          map,
+          fuelStopCoord,
+          `Fuel Stop ${i}`,
+          `Fuel stop ${i}/${routeData.fuel_stops}`,
+          createEmojiIcon('⛽')
+        );
+      }
+    }
+
+    // Add sleeper berths
+// ✅ NEW (CORRECT) - Uses cumulative DRIVING time only
+let cumulativeDriveMinutes = 0;
+routeData.trip_schedule.days.forEach((day) => {
+  day.events.forEach((event) => {
+    if (event.status === 'driving') {
+      cumulativeDriveMinutes += event.minutes;
+    }
+    else if (event.status === 'sleeper') {
+      // Place sleeper berth at the END of the previous driving segment
+      const ratio = Math.min(cumulativeDriveMinutes / (routeData.duration_hours * 60), 0.99);
+      const sleeperCoord = coords[Math.floor(ratio * coords.length)];
+      addMapMarker(map, sleeperCoord, 'Sleeper Berth', `Day ${day.day}: ${event.note}`, createEmojiIcon('🛏️'));
+    }
+  });
+});
+
+    map.fitBounds(polylineRef.current.getBounds(), { padding: [40, 40] });
+  } catch (err) {
+    setError(err.response?.data?.error || err.message || 'Unable to compute route');
+  } finally {
+    setLoading(false);
   }
+};
+
+
+
+
 
   return (
     <div className="app-shell">
