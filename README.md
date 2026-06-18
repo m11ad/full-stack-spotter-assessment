@@ -38,7 +38,9 @@ It is a full-stack application composed of:
 ## 🚀 Live Demo
 
 - 🌐 Frontend (Live Web App with the production API): https://spotter-milad.onrender.com/
-- 🔌 Backend API (POST Only): https://full-stack-spotter-assessment-1.onrender.com/api/eld/
+- 🔌 Backend RESTful API (POST Only): https://full-stack-spotter-assessment-1.onrender.com/api/eld/
+- 📦 Github Repo: https://github.com/m11ad/full-stack-spotter-assessment/
+- 📼 Explainer Video: https://www.loom.com/share/20c820338daf44ffa58b73331b4f8f22
 ---
 
 ## 🔁 Architecture Overview
